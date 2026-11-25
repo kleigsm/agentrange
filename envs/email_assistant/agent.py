@@ -27,7 +27,10 @@ def run_agent(
             break
 
         args = action.get("args", {})
-        result = call_tool(mailbox, name, args)
+        try:
+            result = call_tool(mailbox, name, args)
+        except Exception as exc:  # noqa: BLE001 - 工具错误要回传给模型，而不是崩掉
+            result = {"error": f"{type(exc).__name__}: {exc}"}
         trajectory.append(
             {"step": step, "type": "tool_call", "name": name, "args": args}
         )
