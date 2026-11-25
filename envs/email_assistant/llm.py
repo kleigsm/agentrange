@@ -158,3 +158,80 @@ class OllamaClient:
         if "action" not in action:
             raise RuntimeError(f"模型返回缺少 action 字段：{action}")
         return action
+
+
+def _strip_fences(text: str) -> str:
+    """有些模型会把 JSON 包在 ```json ... ``` 里。"""
+    text = text.strip()
+    if text.startswith("```"):
+        text = text.split("\n", 1)[1] if "\n" in text else text
+        if text.endswith("```"):
+            text = text[:-3]
+    return text.strip()
+
+
+class OpenAICompatClient:
+    """调用任意 OpenAI 兼容接口：DeepSeek / 通义 / SiliconFlow / Moonshot 等。
+
+    环境变量：
+      AR_API_BASE  例如 https://api.deepseek.com/v1
+      AR_API_KEY   你的 key
+      AR_API_MODEL 例如 deepseek-chat
+    """
+
+    def __init__(self, model: str, base_url: str, api_key: str, timeout: int = 120):
+        self.model = model
+        self.base_url = base_url.rstrip("/")
+        self.api_key = api_key
+        self.timeout = timeout
+
+    def _convert(self, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for m in messages:
+            if m["role"] == "tool":
+                content = json.dumps(m["content"], ensure_ascii=False)
+                out.append(
+                    {"role": "user", "content": f"[工具结果 {m['name']}]\n{content}"}
+                )
+            else:
+                out.append({"role": m["role"], "content": m["content"]})
+        return out
+
+    def chat(
+        self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        system = SYSTEM_PROMPT.format(
+            tools=json.dumps(tools, ensure_ascii=False, indent=2)
+        )
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "system", "content": system}] + self._convert(messages),
+            "temperature": 0,
+            "response_format": {"type": "json_object"},
+            "stream": False,
+        }
+        req = urllib.request.Request(
+            self.base_url + "/chat/completions",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_key}",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", "replace")[:300]
+            raise RuntimeError(f"API HTTP {exc.code}：{body}") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"无法连接 API（{self.base_url}）：{exc}") from exc
+
+        content = _strip_fences(data["choices"][0]["message"]["content"])
+        try:
+            action = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"模型没有返回合法 JSON：{content[:200]}") from exc
+        if "action" not in action:
+            raise RuntimeError(f"模型返回缺少 action 字段：{action}")
+        return action

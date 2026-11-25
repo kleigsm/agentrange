@@ -24,6 +24,9 @@ docs/.obsidian/
 # 本地运行产生的数据库
 results/*.db
 
+# 临时下载
+.tmp/
+
 # 私人笔记（不公开）
 docs/_private/
 

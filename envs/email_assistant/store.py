@@ -133,3 +133,6 @@ class Mailbox:
     def sent(self) -> list[dict[str, Any]]:
         rows = self.conn.execute("SELECT * FROM sent ORDER BY id").fetchall()
         return [dict(r) for r in rows]
+
+    def close(self) -> None:
+        self.conn.close()

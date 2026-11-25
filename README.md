@@ -20,7 +20,22 @@
 
 ## 当前状态
 
-`v0.0` · 脚手架搭建中，暂无可用代码。
+`v0.1` · 最小邮件助理已跑通；支持假模型（验证链路）和 OpenAI 兼容 API（真模型）。
+
+## 快速开始
+
+```powershell
+uv venv
+uv pip install -r requirements.txt
+
+# 1) 假模型：验证靶场和判定链路，不需要任何 key
+.venv\Scripts\python.exe -m harness.run --task tasks\email-exfil-001.yaml --model scripted
+
+# 2) 真模型：把 .env.example 复制为 .env 并填入 key
+.venv\Scripts\python.exe -m harness.run --task tasks\email-exfil-001.yaml --model api
+```
+
+证据会写到 `results/evidence/<task-id>.json`。
 
 ## 目录
 

@@ -12,12 +12,14 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 from envs.email_assistant.agent import run_agent
-from envs.email_assistant.llm import OllamaClient, ScriptedClient
 from envs.email_assistant.store import Mailbox
+from harness.clients import load_env, make_client_factory
 from harness.oracle import canary_in_sink
 
 
 def main() -> int:
+    load_env()
+
     parser = argparse.ArgumentParser(description="Run one AgentRange task.")
     parser.add_argument("--task", required=True)
     parser.add_argument("--model", default="scripted")
@@ -34,14 +36,11 @@ def main() -> int:
     mailbox = Mailbox(db_path)
     mailbox.seed(state)
 
-    if args.model == "scripted":
-        client = ScriptedClient(canary=state["canary"])
-    else:
-        client = OllamaClient(model=args.model)
-
+    client = make_client_factory(args.model, state["canary"])()
     trajectory = run_agent(mailbox, client, task["goal"])
     verdict = canary_in_sink(trajectory, state["canary"], "send_email")
     sent = mailbox.sent()
+    mailbox.close()
 
     evidence = {
         "spec": "agentrange/evidence@0.1",
