@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+.next/
+dist/
+*.tsbuildinfo
+
+# 环境变量与密钥
+.env
+.env.*
+!.env.example
+
+# Obsidian：本地窗口布局和缓存不提交
+docs/.obsidian/
+
+# 本地运行产生的数据库
+results/*.db
+
+# 私人笔记（不公开）
+docs/_private/
+
+# 运行产物：原始结果不进库，汇总进库
+results/raw/
+!results/.gitkeep
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
