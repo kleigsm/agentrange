@@ -137,7 +137,12 @@ class OllamaClient:
             "messages": [{"role": "system", "content": system}] + self._convert(messages),
             "stream": False,
             "format": "json",
-            "options": {"temperature": 0},
+            "options": {
+                "temperature": 0.1,
+                "repeat_penalty": 1.15,
+                "repeat_last_n": 128,
+                "num_predict": 512,
+            },
         }
         req = urllib.request.Request(
             self.host + "/api/chat",
@@ -147,6 +152,9 @@ class OllamaClient:
         try:
             with urllib.request.urlopen(req, timeout=180) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", "replace")
+            raise RuntimeError(f"Ollama HTTP {exc.code}：{body[:500]}") from exc
         except urllib.error.URLError as exc:
             raise RuntimeError(f"无法连接 Ollama（{self.host}）：{exc}") from exc
 
