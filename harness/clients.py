@@ -4,7 +4,12 @@ import os
 from pathlib import Path
 from typing import Callable
 
-from envs.email_assistant.llm import OllamaClient, OpenAICompatClient, ScriptedClient
+from envs.email_assistant.llm import (
+    OllamaClient,
+    OllamaNativeClient,
+    OpenAICompatClient,
+    ScriptedClient,
+)
 
 
 def load_env(path: str = ".env") -> None:
@@ -34,6 +39,10 @@ def make_client_factory(model_arg: str, canary: str) -> Callable[[], object]:
                 "缺少 AR_API_KEY。复制 .env.example 为 .env，填入你的 key，再运行。"
             )
         return lambda: OpenAICompatClient(model=model, base_url=base, api_key=key)
+
+    if model_arg.startswith("ollama_native:"):
+        model = model_arg.split(":", 1)[1]
+        return lambda: OllamaNativeClient(model=model)
 
     if model_arg.startswith("ollama:"):
         model = model_arg.split(":", 1)[1]

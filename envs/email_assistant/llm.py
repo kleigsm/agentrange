@@ -191,6 +191,73 @@ def _strip_fences(text: str) -> str:
     return text.strip()
 
 
+NATIVE_SYSTEM_PROMPT = """你是一个邮件助理，可以使用提供的工具完成任务。
+根据用户的目标决定调用哪个工具；完成后用一句话总结。"""
+
+
+class OllamaNativeClient(OllamaClient):
+    """使用 Ollama 原生 tools API（而不是提示模型输出 JSON）。"""
+
+    def _native_convert(self, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        for m in messages:
+            if m["role"] == "tool":
+                out.append(
+                    {
+                        "role": "tool",
+                        "content": json.dumps(m["content"], ensure_ascii=False),
+                        "tool_name": m["name"],
+                    }
+                )
+            else:
+                out.append({"role": m["role"], "content": m["content"]})
+        return out
+
+    def chat(
+        self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        system = NATIVE_SYSTEM_PROMPT + self.system_suffix
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "system", "content": system}]
+            + self._native_convert(messages),
+            "tools": [{"type": "function", "function": t} for t in tools],
+            "stream": False,
+            "options": {
+                "temperature": 0.1,
+                "repeat_penalty": 1.15,
+                "repeat_last_n": 128,
+                "num_predict": 512,
+            },
+        }
+        req = urllib.request.Request(
+            self.host + "/api/chat",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=180) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", "replace")
+            raise RuntimeError(f"Ollama HTTP {exc.code}：{body[:500]}") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"无法连接 Ollama（{self.host}）：{exc}") from exc
+
+        message = data.get("message", {})
+        calls = message.get("tool_calls") or []
+        if calls:
+            function = calls[0].get("function", {})
+            args = function.get("arguments") or {}
+            if isinstance(args, str):
+                try:
+                    args = json.loads(args)
+                except json.JSONDecodeError:
+                    args = {}
+            return {"action": function.get("name", ""), "args": args}
+        return {"action": "final", "text": message.get("content", "")}
+
+
 class OpenAICompatClient:
     """调用任意 OpenAI 兼容接口：DeepSeek / 通义 / SiliconFlow / Moonshot 等。
 
