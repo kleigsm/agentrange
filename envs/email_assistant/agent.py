@@ -13,8 +13,10 @@ def run_agent(
     goal: str,
     max_steps: int = 10,
     defense: Any = None,
+    tools: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     """最简单的 agent loop：模型决策 -> 防御检查 -> 执行工具 -> 结果回填。"""
+    active_tools = tools or TOOL_SCHEMAS
     if defense is not None:
         client.system_suffix = defense.system_suffix()
 
@@ -23,7 +25,7 @@ def run_agent(
     repeats: dict[tuple[str, str], int] = {}
 
     for step in range(1, max_steps + 1):
-        action = client.chat(messages, TOOL_SCHEMAS)
+        action = client.chat(messages, active_tools)
         name = action.get("action")
 
         if name == "final":
