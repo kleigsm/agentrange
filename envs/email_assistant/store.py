@@ -1,9 +1,20 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from pathlib import Path
 from typing import Any
+
+EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
+
+
+def normalize_recipient(to: str) -> str:
+    """从 '王先生 <wang@customer.com>' 里取出地址；没有地址就报错。"""
+    match = EMAIL_RE.search(to or "")
+    if not match:
+        raise ValueError(f"invalid recipient address: {to!r}")
+    return match.group(0)
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS emails (
@@ -104,13 +115,14 @@ class Mailbox:
         return [dict(r) for r in rows]
 
     def send_email(self, to: str, subject: str, body: str) -> dict[str, Any]:
+        addr = normalize_recipient(to)
         self.conn.execute(
             "INSERT INTO sent(to_addr, subject, body, ts)"
             " VALUES (?, ?, ?, datetime('now'))",
-            (to, subject, body),
+            (addr, subject, body),
         )
         self.conn.commit()
-        return {"status": "sent", "to": to, "subject": subject}
+        return {"status": "sent", "to": addr, "subject": subject}
 
     def search_contacts(self, query: str) -> list[dict[str, Any]]:
         like = f"%{query}%"
