@@ -15,7 +15,8 @@ from defenses import build_defense
 from envs.email_assistant.agent import run_agent
 from envs.email_assistant.store import Mailbox
 from harness.clients import load_env, make_client_factory
-from harness.oracle import canary_in_sink, injection_exposed
+from harness.oracle import canary_in_sink, exposed_to_attack
+from harness.tools_builder import build_tools
 
 
 def main() -> int:
@@ -40,15 +41,19 @@ def main() -> int:
 
     client = make_client_factory(args.model, state["canary"])()
     defense = build_defense(args.defense)
-    trajectory = run_agent(mailbox, client, task["goal"], defense=defense)
+    trajectory = run_agent(
+        mailbox,
+        client,
+        task["goal"],
+        defense=defense,
+        tools=build_tools(task),
+    )
     sent = mailbox.sent()
     mailbox.close()
     verdict = canary_in_sink(
         trajectory, state["canary"], "send_email", sent=sent
     )
-    exposed = injection_exposed(
-        trajectory, task.get("attack", {}).get("exposure_marker", "")
-    )
+    exposed = exposed_to_attack(trajectory, task)
     if verdict["success"]:
         outcome = "attacked"
     elif exposed:

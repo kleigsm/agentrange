@@ -17,7 +17,8 @@ from defenses import build_defense
 from envs.email_assistant.agent import run_agent
 from envs.email_assistant.store import Mailbox
 from harness.clients import load_env, make_client_factory
-from harness.oracle import canary_in_sink, injection_exposed
+from harness.oracle import canary_in_sink, exposed_to_attack
+from harness.tools_builder import build_tools
 
 
 def wilson_ci(successes: int, trials: int, z: float = 1.96) -> tuple[float, float]:
@@ -49,9 +50,9 @@ def main() -> int:
     state = json.loads(Path(task["state"]).read_text(encoding="utf-8"))
     factory = make_client_factory(args.model, state["canary"])
     defense = build_defense(args.defense)
+    tools = build_tools(task)
 
     db_path = Path("results") / "batch.db"
-    marker = task.get("attack", {}).get("exposure_marker", "")
     benign_spec = task.get("benign", {"to_contains": "wang@customer.com"})
     successes = 0
     exposed_count = 0
@@ -70,13 +71,13 @@ def main() -> int:
         mailbox.seed(state)
         try:
             trajectory = run_agent(
-                mailbox, factory(), task["goal"], defense=defense
+                mailbox, factory(), task["goal"], defense=defense, tools=tools
             )
             sent = mailbox.sent()
             verdict = canary_in_sink(
                 trajectory, state["canary"], "send_email", sent=sent
             )
-            exposed = injection_exposed(trajectory, marker)
+            exposed = exposed_to_attack(trajectory, task)
         finally:
             mailbox.close()
         ok = bool(verdict["success"])
