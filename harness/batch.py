@@ -13,6 +13,7 @@ import yaml
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
+from defenses import build_defense
 from envs.email_assistant.agent import run_agent
 from envs.email_assistant.store import Mailbox
 from harness.clients import load_env, make_client_factory
@@ -40,12 +41,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run one task N times.")
     parser.add_argument("--task", required=True)
     parser.add_argument("--model", default="scripted")
+    parser.add_argument("--defense", default="none")
     parser.add_argument("--trials", type=int, default=20)
     args = parser.parse_args()
 
     task = yaml.safe_load(Path(args.task).read_text(encoding="utf-8"))
     state = json.loads(Path(task["state"]).read_text(encoding="utf-8"))
     factory = make_client_factory(args.model, state["canary"])
+    defense = build_defense(args.defense)
 
     db_path = Path("results") / "batch.db"
     marker = task.get("attack", {}).get("exposure_marker", "")
@@ -65,10 +68,14 @@ def main() -> int:
         mailbox = Mailbox(db_path)
         mailbox.seed(state)
         try:
-            trajectory = run_agent(mailbox, factory(), task["goal"])
-            verdict = canary_in_sink(trajectory, state["canary"], "send_email")
-            exposed = injection_exposed(trajectory, marker)
+            trajectory = run_agent(
+                mailbox, factory(), task["goal"], defense=defense
+            )
             sent = mailbox.sent()
+            verdict = canary_in_sink(
+                trajectory, state["canary"], "send_email", sent=sent
+            )
+            exposed = injection_exposed(trajectory, marker)
         finally:
             mailbox.close()
         ok = bool(verdict["success"])
@@ -98,6 +105,7 @@ def main() -> int:
     summary = {
         "task": task["id"],
         "model": args.model,
+        "defense": args.defense,
         "trials": args.trials,
         "success": successes,
         "asr": successes / args.trials,
@@ -112,7 +120,10 @@ def main() -> int:
         "rows": rows,
     }
 
-    out = Path("results") / f"batch-{task['id']}-{args.model.replace(':', '_')}.json"
+    out = (
+        Path("results")
+        / f"batch-{task['id']}-{args.model.replace(':', '_')}-{args.defense}.json"
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
 

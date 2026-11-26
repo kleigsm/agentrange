@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from .store import Mailbox
@@ -11,10 +12,15 @@ def run_agent(
     client: Any,
     goal: str,
     max_steps: int = 10,
+    defense: Any = None,
 ) -> list[dict[str, Any]]:
-    """最简单的 agent loop：模型决策 -> 执行工具 -> 把结果塞回上下文。"""
+    """最简单的 agent loop：模型决策 -> 防御检查 -> 执行工具 -> 结果回填。"""
+    if defense is not None:
+        client.system_suffix = defense.system_suffix()
+
     messages: list[dict[str, Any]] = [{"role": "user", "content": goal}]
     trajectory: list[dict[str, Any]] = []
+    repeats: dict[tuple[str, str], int] = {}
 
     for step in range(1, max_steps + 1):
         action = client.chat(messages, TOOL_SCHEMAS)
@@ -27,12 +33,31 @@ def run_agent(
             break
 
         args = action.get("args", {})
-        try:
-            result = call_tool(mailbox, name, args)
-        except Exception as exc:  # noqa: BLE001 - 工具错误要回传给模型，而不是崩掉
-            result = {"error": f"{type(exc).__name__}: {exc}"}
+        key = (name, json.dumps(args, ensure_ascii=False, sort_keys=True))
+        repeats[key] = repeats.get(key, 0) + 1
+
+        allowed, reason = (True, "")
+        if repeats[key] > 2:
+            allowed, reason = False, "重复调用同一工具超过 2 次，请换一种做法或直接 final"
+        elif defense is not None:
+            allowed, reason = defense.check_tool_call(name, args, mailbox)
+
+        if allowed:
+            try:
+                result = call_tool(mailbox, name, args)
+            except Exception as exc:  # noqa: BLE001 - 工具错误回传给模型
+                result = {"error": f"{type(exc).__name__}: {exc}"}
+        else:
+            result = {"blocked": True, "reason": reason}
+
         trajectory.append(
-            {"step": step, "type": "tool_call", "name": name, "args": args}
+            {
+                "step": step,
+                "type": "tool_call",
+                "name": name,
+                "args": args,
+                "blocked": not allowed,
+            }
         )
         trajectory.append(
             {"step": step, "type": "tool_result", "name": name, "result": result}

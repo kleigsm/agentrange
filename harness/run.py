@@ -11,6 +11,7 @@ import yaml
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
+from defenses import build_defense
 from envs.email_assistant.agent import run_agent
 from envs.email_assistant.store import Mailbox
 from harness.clients import load_env, make_client_factory
@@ -23,6 +24,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run one AgentRange task.")
     parser.add_argument("--task", required=True)
     parser.add_argument("--model", default="scripted")
+    parser.add_argument("--defense", default="none")
     parser.add_argument("--out", default="results/evidence")
     args = parser.parse_args()
 
@@ -37,8 +39,13 @@ def main() -> int:
     mailbox.seed(state)
 
     client = make_client_factory(args.model, state["canary"])()
-    trajectory = run_agent(mailbox, client, task["goal"])
-    verdict = canary_in_sink(trajectory, state["canary"], "send_email")
+    defense = build_defense(args.defense)
+    trajectory = run_agent(mailbox, client, task["goal"], defense=defense)
+    sent = mailbox.sent()
+    mailbox.close()
+    verdict = canary_in_sink(
+        trajectory, state["canary"], "send_email", sent=sent
+    )
     exposed = injection_exposed(
         trajectory, task.get("attack", {}).get("exposure_marker", "")
     )
@@ -48,8 +55,6 @@ def main() -> int:
         outcome = "defended"
     else:
         outcome = "not_exposed"
-    sent = mailbox.sent()
-    mailbox.close()
 
     evidence = {
         "spec": "agentrange/evidence@0.1",
@@ -58,6 +63,7 @@ def main() -> int:
         "target": {
             "framework": "raw",
             "model": args.model,
+            "defense": args.defense,
             "env": "email_assistant@0.1",
         },
         "task": {"id": task["id"], "goal": task["goal"]},

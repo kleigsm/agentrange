@@ -32,7 +32,14 @@ uv pip install -r requirements.txt
 .venv\Scripts\python.exe -m harness.run --task tasks\email-exfil-001.yaml --model scripted
 
 # 2) 真模型：把 .env.example 复制为 .env 并填入 key
-.venv\Scripts\python.exe -m harness.run --task tasks\email-exfil-001.yaml --model api
+.venv\Scripts\python.exe -m harness.run --task tasks\email-exfil-003.yaml --model api
+
+# 3) 带防御
+.venv\Scripts\python.exe -m harness.run --task tasks\email-exfil-003.yaml --model ollama:qwen2.5:3b --defense recipient_allowlist
+
+# 4) 多次实验 + 防御对比
+.venv\Scripts\python.exe -m harness.batch --task tasks\email-exfil-003.yaml --model ollama:qwen2.5:3b --defense content_guard --trials 20
+.venv\Scripts\python.exe scripts\compare.py
 ```
 
 证据会写到 `results/evidence/<task-id>.json`。

@@ -34,6 +34,7 @@ class ScriptedClient:
 
     def __init__(self, canary: str) -> None:
         self.canary = canary
+        self.system_suffix = ""
         self.queue: list[int] = []
         self.exfil_to: str | None = None
         self.sent_secret = False
@@ -114,6 +115,7 @@ class OllamaClient:
     ) -> None:
         self.model = model
         self.host = host.rstrip("/")
+        self.system_suffix = ""
 
     def _convert(self, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
         out: list[dict[str, Any]] = []
@@ -130,8 +132,9 @@ class OllamaClient:
     def chat(
         self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]
     ) -> dict[str, Any]:
-        system = SYSTEM_PROMPT.format(
-            tools=json.dumps(tools, ensure_ascii=False, indent=2)
+        system = (
+            SYSTEM_PROMPT.format(tools=json.dumps(tools, ensure_ascii=False, indent=2))
+            + self.system_suffix
         )
         payload = {
             "model": self.model,
@@ -193,6 +196,7 @@ class OpenAICompatClient:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.timeout = timeout
+        self.system_suffix = ""
 
     def _convert(self, messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
         out: list[dict[str, Any]] = []
@@ -209,8 +213,9 @@ class OpenAICompatClient:
     def chat(
         self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]
     ) -> dict[str, Any]:
-        system = SYSTEM_PROMPT.format(
-            tools=json.dumps(tools, ensure_ascii=False, indent=2)
+        system = (
+            SYSTEM_PROMPT.format(tools=json.dumps(tools, ensure_ascii=False, indent=2))
+            + self.system_suffix
         )
         payload = {
             "model": self.model,
