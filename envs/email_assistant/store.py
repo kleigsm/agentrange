@@ -9,9 +9,11 @@ from typing import Any
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 
 
-def normalize_recipient(to: str) -> str:
+def normalize_recipient(to: Any) -> str:
     """从 '王先生 <wang@customer.com>' 里取出地址；没有地址就报错。"""
-    match = EMAIL_RE.search(to or "")
+    if isinstance(to, (list, tuple)):
+        to = " ".join(str(item) for item in to)
+    match = EMAIL_RE.search(str(to or ""))
     if not match:
         raise ValueError(f"invalid recipient address: {to!r}")
     return match.group(0)
