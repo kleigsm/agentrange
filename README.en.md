@@ -44,7 +44,7 @@ Task 009, Qwen2.5-3B:
 
 - A textual "data is not instruction" rule **increased** ASR from 0.50 to 1.00
 - A capability boundary (recipient allowlist) blocked both exfiltration and unauthorized recipients across two model families
-- Blocking alone left `utility = 0`; **allowlist + a post-block recovery prompt restored utility to 1.00**
+- Blocking alone left `utility = 0`; **allowlist + a post-block recovery prompt restored utility to 1.00 on both Qwen2.5-3B and Mistral-7B**
 
 ## Quickstart
 
