@@ -136,7 +136,7 @@ v0.1 — research prototype. 7 local models (1.5B–8B), 15 task variants, 6 def
 
 Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-See `docs/` for the Chinese design notes, experiment logs and the evaluation-pitfalls write-up.
+See `docs/` for the Chinese design notes, experiment logs and the evaluation-pitfalls write-up. Common questions: [`docs/00-索引/FAQ.md`](docs/00-索引/FAQ.md).
 
 ## Ethics
 
