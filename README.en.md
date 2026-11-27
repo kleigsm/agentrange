@@ -1,5 +1,7 @@
 # AgentRange
 
+[![ci](https://github.com/kleigsm/agentrange/actions/workflows/ci.yml/badge.svg)](https://github.com/kleigsm/agentrange/actions/workflows/ci.yml)
+
 **A reproducible security benchmark for tool-using LLM agents.**
 
 Most AI red-team reports are not reproducible:

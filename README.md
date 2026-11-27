@@ -1,5 +1,7 @@
 # AgentRange
 
+[![ci](https://github.com/kleigsm/agentrange/actions/workflows/ci.yml/badge.svg)](https://github.com/kleigsm/agentrange/actions/workflows/ci.yml)
+
 [English](README.en.md) | 中文
 
 **面向工具型 LLM Agent 的可复现安全基准。**
