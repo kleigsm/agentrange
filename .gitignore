@@ -13,28 +13,22 @@ node_modules/
 dist/
 *.tsbuildinfo
 
-# 环境变量与密钥
+# Secrets
 .env
 .env.*
 !.env.example
 
-# Obsidian：本地窗口布局和缓存不提交
+# Obsidian local state
 docs/.obsidian/
-
-# 本地运行产生的数据库
-results/*.db
-
-# 临时下载
-.tmp/
-
-# 私人笔记（不公开）
 docs/_private/
 
-# 运行产物：原始结果不进库，汇总进库
-results/raw/
-!results/.gitkeep
+# Local databases
+results/*.db
 
-# 操作系统
+# Temp
+.tmp/
+
+# OS
 .DS_Store
 Thumbs.db
 desktop.ini

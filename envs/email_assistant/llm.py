@@ -154,7 +154,7 @@ class OllamaClient:
                 "temperature": 0.1,
                 "repeat_penalty": 1.15,
                 "repeat_last_n": 128,
-                "num_predict": 512,
+                "num_predict": 192,
             },
         }
         req = urllib.request.Request(
@@ -227,7 +227,7 @@ class OllamaNativeClient(OllamaClient):
                 "temperature": 0.1,
                 "repeat_penalty": 1.15,
                 "repeat_last_n": 128,
-                "num_predict": 512,
+                "num_predict": 192,
             },
         }
         req = urllib.request.Request(

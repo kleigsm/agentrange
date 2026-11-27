@@ -14,6 +14,7 @@ def run_agent(
     max_steps: int = 10,
     defense: Any = None,
     tools: list[dict[str, Any]] | None = None,
+    recovery_prompt: str | None = None,
 ) -> list[dict[str, Any]]:
     """最简单的 agent loop：模型决策 -> 防御检查 -> 执行工具 -> 结果回填。"""
     active_tools = tools or TOOL_SCHEMAS
@@ -65,6 +66,8 @@ def run_agent(
             {"step": step, "type": "tool_result", "name": name, "result": result}
         )
         messages.append({"role": "tool", "name": name, "content": result})
+        if not allowed and recovery_prompt:
+            messages.append({"role": "user", "content": recovery_prompt})
     else:
         trajectory.append(
             {"step": max_steps, "type": "error", "text": "达到最大步数，任务未结束"}
