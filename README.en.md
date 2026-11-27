@@ -84,7 +84,7 @@ tasks/                  task definitions (YAML)
 states/                 seeded mailbox states
 spec/                   evidence pack schema (WIP)
 docs/                   design notes, courses, experiments (Chinese)
-results/                evidence JSON and batch summaries
+results/                evidence JSON and batch summaries (see results/SUMMARY.md)
 ```
 
 ## What makes a finding reproducible
