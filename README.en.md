@@ -111,6 +111,15 @@ v0.1 — research prototype. 7 local models (1.5B–8B), 15 task variants, 6 def
 - One environment (email assistant), one injection surface (email body).
 - Preliminary numbers; they will change as the benchmark grows.
 
+## Roadmap
+
+- **v0.1** — single environment, canary oracle, 7 local models, three-layer defense ✅
+- **v0.2** — more injection surfaces (tool descriptions, RAG documents), 20 trials per key cell
+- **v0.3** — web report, public leaderboard
+- **v1.0** — technical report, dataset release
+
+Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 See `docs/` for the Chinese design notes, experiment logs and the evaluation-pitfalls write-up.
 
 ## Ethics

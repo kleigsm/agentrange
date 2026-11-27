@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use AgentRange, please cite this repository."
+title: AgentRange
+abstract: "A reproducible security benchmark for tool-using LLM agents, with executable canary oracles and separate metrics for exposure, exfiltration, policy violations, and task utility."
+authors:
+  - family-names: "高"
+    given-names: "晟铭"
+    alias: "kleigsm"
+version: 0.1.0
+date-released: 2026-11-27
+license: Apache-2.0
+repository-code: "https://github.com/kleigsm/agentrange"
+keywords:
+  - llm-security
+  - ai-red-teaming
+  - agent-security
+  - prompt-injection
+  - benchmark
