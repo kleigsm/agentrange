@@ -62,6 +62,7 @@ Task 009, Qwen2.5-3B:
 - A capability boundary (recipient allowlist) blocked both exfiltration and unauthorized recipients across two model families
 - Blocking alone left `utility = 0`; a post-block recovery prompt restored utility to 1.00, **but ASR rose to 0.25** — the canary leaked into the benign reply to an *allowed* recipient. Recipient allowlists are not content controls.
 - Adding outbound **content redaction** closed that gap: `allowlist + redaction + recovery` = **ASR 0.00, policy violation 0.00, utility 1.00** (n=20 on Qwen2.5-3B; also 0/0/1.00 on Mistral-7B, n=20).
+- On a deliberately vulnerable Llama variant (tool results wrapped as `user`), the same three layers kept ASR and policy violations at 0.00; utility was 0.20 because the base model itself is weak (0.28 without defense).
 
 ## Quickstart
 
