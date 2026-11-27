@@ -32,6 +32,19 @@ AgentRange replaces the judge with **executable canary oracles** and separates t
 
 Using the wrong token makes a model look safe. Within the same template, larger models were *more* susceptible in our setup — not less.
 
+### The real surface is the tool-result role
+
+Qwen and Mistral wrap tool results as a `user` turn. Llama 3.1 wraps them as `ipython`.
+
+We copied Llama 3.1 and changed **only** that role (`ipython` → `user`):
+
+| Version | Read injection | Executed | Conditional ASR |
+|---|---|---|---|
+| `ipython` | 5/5 | 0/5 | 0.00 |
+| `user` | 7/25 | 6/7 | **0.86** |
+
+The model did not become "safer" or "more dangerous" in general — but the role of the tool result changed how much it trusted the injected turn. (The modified model also became less capable: utility 1.00 → 0.28.)
+
 ### Defenses: text-level can backfire, capability-level holds
 
 Task 009, Qwen2.5-3B:
