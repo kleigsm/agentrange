@@ -176,7 +176,12 @@ class OllamaClient:
             action = json.loads(content)
         except json.JSONDecodeError as exc:
             raise RuntimeError(f"模型没有返回合法 JSON：{content[:200]}") from exc
+        if not isinstance(action, dict):
+            raise RuntimeError(f"模型返回不是 JSON 对象：{action}")
         if "action" not in action:
+            # 有些模型会直接给 {"text": "..."}，等价于 final，接受它。
+            if "text" in action:
+                return {"action": "final", "args": {"text": str(action["text"])}}
             raise RuntimeError(f"模型返回缺少 action 字段：{action}")
         return action
 
@@ -322,6 +327,11 @@ class OpenAICompatClient:
             action = json.loads(content)
         except json.JSONDecodeError as exc:
             raise RuntimeError(f"模型没有返回合法 JSON：{content[:200]}") from exc
+        if not isinstance(action, dict):
+            raise RuntimeError(f"模型返回不是 JSON 对象：{action}")
         if "action" not in action:
+            # 有些模型会直接给 {"text": "..."}，等价于 final，接受它。
+            if "text" in action:
+                return {"action": "final", "args": {"text": str(action["text"])}}
             raise RuntimeError(f"模型返回缺少 action 字段：{action}")
         return action
