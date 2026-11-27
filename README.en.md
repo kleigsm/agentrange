@@ -102,7 +102,14 @@ A blocked tool call is **not** a successful attack. The oracle reads the `sent` 
 
 ## Status
 
-v0.1 — research prototype. 6 local models (1.5B–8B), 14 task variants, 5 defense configurations.
+v0.1 — research prototype. 7 local models (1.5B–8B), 15 task variants, 6 defense configurations.
+
+### Limitations
+
+- Small samples in key cells (n=5–20); confidence intervals are wide.
+- Local small models only (1.5B–8B); no frontier API models yet.
+- One environment (email assistant), one injection surface (email body).
+- Preliminary numbers; they will change as the benchmark grows.
 
 See `docs/` for the Chinese design notes, experiment logs and the evaluation-pitfalls write-up.
 
