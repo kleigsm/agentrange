@@ -194,6 +194,14 @@ Caveat: the modified model is also less capable overall (utility 1.00 → 0.28),
 3. **Measure utility, not just ASR.** A defense that blocks everything is not a defense.
 4. **Treat tool-result roles as a security boundary.** The same content is trusted differently depending on the role it is wrapped in.
 
+## Safety and ethics
+
+- All experiments ran in a local mock environment: fake mailbox, fake recipients, fake canary. No real systems, users, or third-party services were targeted.
+- The payloads are illustrative, not a turnkey exploit. Do not use them against systems you do not own or have written authorization to test.
+- If you find a similar issue in a real product, follow the vendor's responsible-disclosure process. Do not publish details that are directly exploitable.
+- Unauthorized access to computer systems is illegal in many jurisdictions.
+- The code is Apache-2.0, provided as-is. Some local models carry their own licenses (e.g., Qwen Research License) — check before commercial use.
+
 ## Code and data
 
 Repository: **https://github.com/kleigsm/agentrange** (Apache-2.0)
