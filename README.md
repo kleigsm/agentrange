@@ -1,5 +1,7 @@
 # AgentRange
 
+[English](README.en.md) | 中文
+
 **面向国产大模型的 Agent 安全基准。**
 
 用可执行的 canary 判定，替代不可靠的 LLM judge——让每一条红队发现都能被复现、被验证。
