@@ -85,7 +85,7 @@ cp .env.example .env   # 填 AR_API_KEY
 | `defenses/` | 提示词加固、收件人白名单、内容过滤、内容脱敏、组合 |
 | `tasks/` | 任务定义（YAML） |
 | `states/` | 预先种好的邮箱状态 |
-| `results/` | 证据 JSON 与批量汇总 |
+| `results/` | 证据 JSON 与批量汇总；全部 44 条结果见 [`results/SUMMARY.md`](results/SUMMARY.md) |
 | `docs/` | 中文设计笔记、课程、实验记录 |
 
 ## 局限
