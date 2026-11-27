@@ -142,6 +142,8 @@ See `docs/` for the Chinese design notes, experiment logs and the evaluation-pit
 
 AgentRange is for **authorized self-assessment only**. All environments are local mock mailboxes; there are no real targets, credentials or user data. Do not point it at systems you do not own.
 
+If you find a real vulnerability, follow the vendor's responsible-disclosure process. Do not publish directly exploitable details.
+
 ## License
 
 TBD (likely Apache-2.0). Note that some local models carry their own licenses (e.g., Qwen Research License) — check before commercial use.
