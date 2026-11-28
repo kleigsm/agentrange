@@ -8,6 +8,7 @@ from .prompt_hardening import PromptHardening
 from .prompt_hardening_neutral import PromptHardeningNeutral
 from .recipient_allowlist import RecipientAllowlist
 from .stack import StackDefense
+from .tool_output_sanitizer import ToolOutputSanitizer
 
 DEFENSES: dict[str, type[Defense]] = {
     "none": NoDefense,
@@ -16,6 +17,7 @@ DEFENSES: dict[str, type[Defense]] = {
     "recipient_allowlist": RecipientAllowlist,
     "content_guard": ContentGuard,
     "content_redaction": ContentRedaction,
+    "tool_output_sanitizer": ToolOutputSanitizer,
 }
 
 
