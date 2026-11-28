@@ -38,7 +38,7 @@
 |---|---|---|
 | 邮件正文 | 0.50 | 要 `read_email` |
 | 邮件主题（Qwen 结构型） | 0.20 | 只要 `list_emails` |
-| 邮件主题（Qwen 纯文本） | 0.10 | 只要 `list_emails` |
+| 邮件主题（Qwen 纯文本） | 0.05 | 只要 `list_emails` |
 | 邮件主题（Mistral `[INST]`） | **1.00** | 只要 `list_emails` |
 | 工具描述 | 0.00 | 一直可见 |
 

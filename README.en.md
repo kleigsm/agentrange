@@ -38,7 +38,7 @@ Using the wrong token makes a model look safe. Within the same template, larger 
 |---|---|---|
 | Email body | 0.50 | must `read_email` |
 | Email subject (Qwen, structural) | 0.20 | only `list_emails` |
-| Email subject (Qwen, plain) | 0.10 | only `list_emails` |
+| Email subject (Qwen, plain) | 0.05 | only `list_emails` |
 | Email subject (Mistral `[INST]`) | **1.00** | only `list_emails` |
 | Tool description | 0.00 | always visible |
 
