@@ -61,6 +61,7 @@ Qwen 和 Mistral 把工具结果包成 `user` 轮；Llama 3.1 包成 `ipython` �
 - 文本型"数据不是指令"规则把 ASR 从 0.50 推到 1.00
 - 单一 allowlist 能拦外发，但 utility 归零；加 recovery 恢复任务，却漏 0.25（canary 写进了给合法收件人的正常回复）
 - **三层防御 who / what / after 才同时成立**
+- **根因防御：工具输出消毒**——在工具结果进入模型前中和 `<|...|>`，在正文和主题两个注入面上都把 ASR 压到 0，utility 保持 1.0
 
 ## 快速开始
 
@@ -97,7 +98,7 @@ cp .env.example .env   # 填 AR_API_KEY
 |---|---|
 | `envs/email_assistant/` | 模拟邮箱、工具、agent loop、LLM client |
 | `harness/` | 运行器、批量统计、oracle |
-| `defenses/` | 提示词加固、收件人白名单、内容过滤、内容脱敏、组合 |
+| `defenses/` | 提示词加固、收件人白名单、内容过滤、内容脱敏、工具输出消毒、组合 |
 | `tasks/` | 任务定义（YAML） |
 | `states/` | 预先种好的邮箱状态 |
 | `results/` | 证据 JSON 与批量汇总；全部 44 条结果见 [`results/SUMMARY.md`](results/SUMMARY.md) |
