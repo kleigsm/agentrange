@@ -32,6 +32,17 @@ AgentRange replaces the judge with **executable canary oracles** and separates t
 
 Using the wrong token makes a model look safe. Within the same template, larger models were *more* susceptible in our setup — not less.
 
+### Injection surfaces have a hierarchy
+
+| Surface | ASR | Barrier |
+|---|---|---|
+| Email body | 0.50 | must `read_email` |
+| Email subject (structural) | 0.20 | only `list_emails` |
+| Email subject (plain) | 0.10 | only `list_emails` |
+| Tool description | 0.00 | always visible |
+
+The subject is a **lower-barrier** surface than the body: the agent only needs to list emails. Tool descriptions were not an effective surface in our setup.
+
 ### The real surface is the tool-result role
 
 Qwen and Mistral wrap tool results as a `user` turn. Llama 3.1 wraps them as `ipython`.
