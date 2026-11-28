@@ -68,6 +68,7 @@ Qwen 和 Mistral 把工具结果包成 `user` 轮；Llama 3.1 包成 `ipython` �
 | recipient_allowlist | 0.00 | 0.00 | 0.00 |
 | + recovery | 0.25 | 0.00 | 1.00 |
 | **+ content_redaction** | **0.00** | **0.00** | **1.00** |
+| **tool_output_sanitizer**（独立一层） | **0.00** | **0.00** | **1.00** |
 
 - 文本型"数据不是指令"规则把 ASR 从 0.50 推到 1.00
 - 单一 allowlist 能拦外发，但 utility 归零；加 recovery 恢复任务，却漏 0.25（canary 写进了给合法收件人的正常回复）
