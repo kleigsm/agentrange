@@ -53,6 +53,9 @@ def run_agent(
         else:
             result = {"blocked": True, "reason": reason}
 
+        if defense is not None and hasattr(defense, "sanitize"):
+            result = defense.sanitize(result)
+
         trajectory.append(
             {
                 "step": step,
