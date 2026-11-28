@@ -16,7 +16,7 @@ class ToolOutputSanitizer(Defense):
     """
 
     name = "tool_output_sanitizer"
-    description = "把工具结果里的 <|...|> 和 [INST] 中和为 [TOKEN] / [INST]"
+    description = "把工具结果里的 <|...|> 和 [INST] 中和为非 token 的 [TOKEN] / 【INST】"
 
     def check_tool_call(
         self, name: str, args: dict[str, Any], mailbox: Any
@@ -26,7 +26,8 @@ class ToolOutputSanitizer(Defense):
     def sanitize(self, value: Any) -> Any:
         if isinstance(value, str):
             value = TOKEN_RE.sub("[TOKEN]", value)
-            value = INST_RE.sub("[INST]", value)
+            # 必须换成非 token：换成 [INST] 仍会被 Mistral 当成结构 token
+            value = INST_RE.sub("【INST】", value)
             return value
         if isinstance(value, dict):
             return {key: self.sanitize(item) for key, item in value.items()}
